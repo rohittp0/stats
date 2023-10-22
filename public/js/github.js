@@ -70,6 +70,13 @@ async function fetchGitHubData(githubId, token) {
     }
   `;
 
+    const now = Date.now();
+
+    const {cached, timestamp} = JSON.parse(localStorage.getItem(githubId) || '{}');
+
+    if (cached && now - timestamp < 1000 * 60 * 60 * 24)
+        return cached;
+
     const [contributionsData, reposData] = await Promise.all([
         fetchGraphQL(contributionsQuery, {login: githubId}),
         fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
@@ -82,10 +89,12 @@ async function fetchGitHubData(githubId, token) {
         });
     });
 
-    return {
+    const data = {
         numberOfRepositories: reposData.length,
         totalContributions: contributionsData.user.contributionsCollection.contributionCalendar.totalContributions,
         numberOfLanguages: languages.size,
         languages: Array.from(languages)
     };
+
+    localStorage.setItem(githubId, JSON.stringify({cached: data, timestamp: now}));
 }

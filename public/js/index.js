@@ -49,6 +49,7 @@ submitBtn.addEventListener('click', async () => {
             const data = await fetchGitHubData(githubId, token).catch(error => {
                 if (String(error).includes('401')) {
                     localStorage.removeItem('github_token');
+                    localStorage.setItem('github_ids', textArea.value);
                     return initiateAuthFlow();
                 }
 
