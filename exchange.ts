@@ -1,6 +1,6 @@
 // Importing necessary modules from their URLs
 import {Application, Router} from "https://deno.land/x/oak/mod.ts";
-import {staticServe} from "https://deno.land/x/oak_static/mod.ts";
+import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
 const app = new Application();
 const router = new Router();
@@ -40,7 +40,7 @@ router.get("/exchange", async context => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.use(staticServe("./public"));
+app.use(staticFiles("public"));
 
 addEventListener("fetch", (event) => {
     event.respondWith(app.handle(event.request));
