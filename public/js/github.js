@@ -74,8 +74,11 @@ async function fetchGitHubData(githubId, token) {
 
     const {cached, timestamp} = JSON.parse(localStorage.getItem(githubId) || '{}');
 
-    if (cached !== undefined && now - timestamp < 1000 * 60 * 60 * 24)
+    if (cached && now - timestamp < 1000 * 60 * 60 * 24)
         return cached;
+
+    if (cached === null && now - timestamp < 1000 * 60 * 60 * 24 * 7)
+        throw new Error('Data not available');
 
     try {
         const [contributionsData, reposData] = await Promise.all([

@@ -63,9 +63,6 @@ submitBtn.addEventListener('click', async () => {
             });
             const {common, rare} = categorizeLanguages(data.languages, commonLanguagesList);
 
-            if(!data)
-                throw new Error("No data");
-
             dataRows.push([
                 githubId,
                 data.numberOfRepositories,
