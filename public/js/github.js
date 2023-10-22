@@ -41,7 +41,7 @@ async function fetchGitHubData(githubId, token) {
     const reposQuery = `
     query($login: String!, $cursor: String) {
       user(login: $login) {
-        repositories(first: 100, after: $cursor) {
+        repositoriesContributedTo(first: 100, after: $cursor) {
           nodes {
             languages(first: 100) {
               nodes {
@@ -87,8 +87,7 @@ async function fetchGitHubData(githubId, token) {
             fetchGraphQL(contributionsQuery, {login: githubId}),
             fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
         ]);
-    }
-    catch (error) {
+    } catch (error) {
         if (!String(error).includes('401') && !String(error).includes('403'))
             localStorage.setItem(githubId, JSON.stringify({cached: null, timestamp: now}));
 
