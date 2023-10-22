@@ -17,8 +17,6 @@ function categorizeLanguages(languages, commonLanguagesList) {
 }
 
 async function initiateAuthFlow() {
-    // Store codeVerifier in localStorage to use it later
-    localStorage.setItem('pkce_code_verifier', codeVerifier);
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${window.location.href}&scope=user`;
 }
 
@@ -48,7 +46,14 @@ submitBtn.addEventListener('click', async () => {
     const dataRows = [];
     for (const githubId of githubIds) {
         try {
-            const data = await fetchGitHubData(githubId, token);
+            const data = await fetchGitHubData(githubId, token).catch(error => {
+                if (String(error).includes('401')) {
+                    localStorage.removeItem('github_token');
+                    return initiateAuthFlow();
+                }
+
+                throw error;
+            });
             const {common, rare} = categorizeLanguages(data.languages, commonLanguagesList);
 
             dataRows.push([
@@ -92,12 +97,10 @@ submitBtn.addEventListener('click', async () => {
 });
 
 // Assuming the OAuth callback redirects to this page with a code parameter
-const urlParams = new URLSearchParams(window.location.search);
-const code = urlParams.get('code');
-const storedCodeVerifier = localStorage.getItem('pkce_code_verifier');
+const code = new URLSearchParams(window.location.search).get('code')
 
-if (code && storedCodeVerifier) {
-    fetch('https://github.com/login/oauth/access_token')
+if (code) {
+    fetch(`https://github-auth.deno.dev/exchange?code=${code}`)
         .then(response => response.json())
         .then(data => {
             const accessToken = data.access_token;

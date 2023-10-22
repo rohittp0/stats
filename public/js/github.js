@@ -11,6 +11,9 @@ async function fetchGitHubData(githubId, token) {
             body: JSON.stringify({query, variables}),
         });
 
+        if (response.status !== 200)
+            throw new Error(String(response.status));
+
         const data = await response.json();
         if (data.errors) {
             throw new Error(JSON.stringify(data.errors, null, 2));
