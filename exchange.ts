@@ -45,5 +45,6 @@ router.get("/exchange", async context => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-// For local testing, replace the following line with: await app.listen({ port: 3000 });
-addEventListener("fetch", app.fetchEventHandler());
+addEventListener("fetch", (event) => {
+    event.respondWith(app.handle(event.request));
+});
