@@ -77,10 +77,18 @@ async function fetchGitHubData(githubId, token) {
     if (cached && now - timestamp < 1000 * 60 * 60 * 24)
         return cached;
 
-    const [contributionsData, reposData] = await Promise.all([
-        fetchGraphQL(contributionsQuery, {login: githubId}),
-        fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
-    ]);
+    try {
+        const [contributionsData, reposData] = await Promise.all([
+            fetchGraphQL(contributionsQuery, {login: githubId}),
+            fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
+        ]);
+    }
+    catch (error) {
+        if (!String(error).includes('401') && !String(error).includes('403'))
+            localStorage.setItem(githubId, JSON.stringify({cached: null, timestamp: now}));
+
+        throw error;
+    }
 
     const languages = new Set();
     reposData.forEach(repo => {

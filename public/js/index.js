@@ -48,8 +48,10 @@ submitBtn.addEventListener('click', async () => {
         try {
             const data = await fetchGitHubData(githubId, token).catch(error => {
                 if (String(error).includes('401') || String(error).includes('403')) {
-                    if(localStorage.getItem('retry') === 'true')
+                    if(localStorage.getItem('retry') === 'true') {
+                        localStorage.removeItem('retry');
                         return window.location.href = "/";
+                    }
 
                     localStorage.removeItem('github_token');
                     localStorage.setItem('github_ids', textArea.value);
@@ -60,6 +62,9 @@ submitBtn.addEventListener('click', async () => {
                 throw error;
             });
             const {common, rare} = categorizeLanguages(data.languages, commonLanguagesList);
+
+            if(!data)
+                throw new Error("No data");
 
             dataRows.push([
                 githubId,
