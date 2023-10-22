@@ -85,7 +85,7 @@ async function fetchGitHubData(githubId, token) {
     try {
         [contributionsData, reposData] = await Promise.all([
             fetchGraphQL(contributionsQuery, {login: githubId}),
-            fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
+            fetchAllPages(reposQuery, ['user', 'repositoriesContributedTo'], {login: githubId})
         ]);
     } catch (error) {
         if (!String(error).includes('401') && !String(error).includes('403'))
