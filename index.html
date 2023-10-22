@@ -2,12 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stats</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github Stats</title>
     <link rel="stylesheet" href="css/index.css">
+    <script src="js/github.js" defer></script>
     <script src="js/index.js" defer></script>
 </head>
 <body>
-
+<div class="container" id="input-container">
+    <label for="github-ids">GitHub Ids</label>
+    <textarea id="github-ids" placeholder="Enter GitHub IDs, one per line" rows="10" cols="30"></textarea><br>
+    <button id="submit-btn">Fetch</button>
+</div>
+<div class="container wider" id="output-container" style="display: none;">
+    <button id="download-btn">Download CSV</button>
+    <table id="data-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Repos</th>
+            <th>Contributions</th>
+            <th>Common Languages</th>
+            <th>Rare Languages</th>
+            <th>Languages</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+    <small>
+        *Rare languages are those which are not <a href="res/common.txt" target="_blank">common</a>
+    </small>
+</div>
 </body>
 </html>

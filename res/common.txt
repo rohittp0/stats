@@ -1,0 +1,10 @@
+JavaScript
+HTML
+CSS
+Java
+Python
+C++
+C#
+TypeScript
+PHP
+Ruby
