@@ -47,9 +47,13 @@ submitBtn.addEventListener('click', async () => {
     for (const githubId of githubIds) {
         try {
             const data = await fetchGitHubData(githubId, token).catch(error => {
-                if (String(error).includes('401')) {
+                if (String(error).includes('401') || String(error).includes('403')) {
+                    if(localStorage.getItem('retry') === 'true')
+                        return window.location.href = "/";
+
                     localStorage.removeItem('github_token');
                     localStorage.setItem('github_ids', textArea.value);
+                    localStorage.setItem('retry', 'true');
                     return initiateAuthFlow();
                 }
 
@@ -95,6 +99,8 @@ submitBtn.addEventListener('click', async () => {
 
     inputContainer.style.display = 'none';
     outputContainer.style.display = 'block';
+
+    localStorage.removeItem('retry');
 });
 
 // Assuming the OAuth callback redirects to this page with a code parameter
