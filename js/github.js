@@ -1,6 +1,5 @@
-async function fetchGitHubData(githubId) {
+async function fetchGitHubData(githubId, token) {
     const endpoint = 'https://api.github.com/graphql';
-    const token = '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';
 
     async function fetchGraphQL(query, variables = {}) {
         const response = await fetch(endpoint, {
