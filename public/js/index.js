@@ -27,15 +27,8 @@ async function getRowData(githubIds, token, commonLanguagesList) {
         try {
             const data = await fetchGitHubData(githubId, token).catch(error => {
                 if (String(error).includes('401') || String(error).includes('403')) {
-                    if(localStorage.getItem('retry') === 'true') {
-                        localStorage.removeItem('retry');
-                        return dataRows;
-                    }
-
                     localStorage.removeItem('github_token');
-                    localStorage.setItem('github_ids', textArea.value);
-                    localStorage.setItem('retry', 'true');
-                    return initiateAuthFlow();
+                    return dataRows;
                 }
 
                 throw error;
@@ -51,7 +44,7 @@ async function getRowData(githubIds, token, commonLanguagesList) {
                 data.languages.sort().join(' ')
             ]);
         } catch (error) {
-            console.error(`Failed to fetch data for GitHub ID ${githubId}:`, error);
+            console.error(error);
             dataRows.push([githubId, '', '', '', '', '']);
         }
     }
@@ -106,8 +99,6 @@ submitBtn.addEventListener('click', async () => {
 
     inputContainer.style.display = 'none';
     outputContainer.style.display = 'block';
-
-    localStorage.removeItem('retry');
 });
 
 // Assuming the OAuth callback redirects to this page with a code parameter
