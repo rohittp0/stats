@@ -80,8 +80,10 @@ async function fetchGitHubData(githubId, token) {
     if (cached === null && now - timestamp < 1000 * 60 * 60 * 24 * 7)
         throw new Error('Data not available');
 
+    let contributionsData, reposData;
+
     try {
-        const [contributionsData, reposData] = await Promise.all([
+        [contributionsData, reposData] = await Promise.all([
             fetchGraphQL(contributionsQuery, {login: githubId}),
             fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId})
         ]);
