@@ -33,16 +33,21 @@ async function getRowData(githubIds, token, commonLanguagesList) {
 
                 throw error;
             });
-            const {common, rare} = categorizeLanguages(data.languages, commonLanguagesList);
 
-            dataRows.push([
-                githubId,
-                data.numberOfRepositories,
-                data.totalContributions,
-                common,
-                rare,
-                data.languages.sort().join(' ')
-            ]);
+            if (!data)
+                dataRows.push([githubId, 'NOT_FOUND', '', '', '', '']);
+            else {
+                const {common, rare} = categorizeLanguages(data.languages, commonLanguagesList);
+
+                dataRows.push([
+                    githubId,
+                    data.numberOfRepositories,
+                    data.totalContributions,
+                    common,
+                    rare,
+                    data.languages.sort().join(' ')
+                ]);
+            }
         } catch (error) {
             console.error(error);
             dataRows.push([githubId, '', '', '', '', '']);

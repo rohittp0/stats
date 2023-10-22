@@ -78,7 +78,7 @@ async function fetchGitHubData(githubId, token) {
         return cached;
 
     if (cached === null && now - timestamp < 1000 * 60 * 60 * 24 * 7)
-        throw new Error('Data not available');
+        return null;
 
     let contributionsData, reposData;
 
