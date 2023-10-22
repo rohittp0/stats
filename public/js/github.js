@@ -110,4 +110,6 @@ async function fetchGitHubData(githubId, token) {
     };
 
     localStorage.setItem(githubId, JSON.stringify({cached: data, timestamp: now}));
+
+    return data;
 }
