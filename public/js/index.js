@@ -5,7 +5,7 @@ const inputContainer = document.getElementById('input-container');
 const outputContainer = document.getElementById('output-container');
 const downloadButton = document.getElementById('download-btn');
 
-const headerRow = ['GitHub ID', 'Number of Repositories', 'Total Contributions', 'Number of Languages', 'Languages'];
+const headerRow = ['GitHub ID', 'Number of Repositories', 'Total Contributions', 'Common Languages', 'Rare Languages', 'Languages'];
 const commonLanguages = fetch("res/common.txt").then(res => res.text()).then(text => text.split('\n'));
 
 const CLIENT_ID = '8afe237c3f87bcd01256';

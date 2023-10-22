@@ -48,6 +48,26 @@ async function fetchGitHubData(githubId, token) {
     const reposQuery = `
     query($login: String!, $cursor: String) {
       user(login: $login) {
+        repositories(first: 100, isFork: false, after: $cursor) {
+          nodes {
+            languages(first: 100) {
+              nodes {
+                name
+              }
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  `;
+
+    const contribQuery = `
+    query($login: String!, $cursor: String) {
+      user(login: $login) {
         repositoriesContributedTo(first: 100, after: $cursor) {
           nodes {
             languages(first: 100) {
@@ -87,15 +107,18 @@ async function fetchGitHubData(githubId, token) {
     if (cached === null && now - timestamp < 1000 * 60 * 60 * 24 * 7)
         return null;
 
-    let contributionsData, reposData;
+    let contributionsData, reposData, contribData
 
-    [contributionsData, reposData] = await Promise.all([
+    [contributionsData, reposData, contribData] = await Promise.all([
             fetchGraphQL(contributionsQuery, {login: githubId}),
-            fetchAllPages(reposQuery, ['user', 'repositoriesContributedTo'], {login: githubId})
+            fetchAllPages(reposQuery, ['user', 'repositories'], {login: githubId}),
+            fetchAllPages(contribQuery, ['user', 'repositoriesContributedTo'], {login: githubId})
         ]);
 
-    if (!contributionsData || !reposData)
+    if (!contributionsData || !reposData || !contribData)
         return localStorage.setItem(githubId, JSON.stringify({cached: null, timestamp: now}));
+
+    reposData = reposData.concat(contribData);
 
     const languages = new Set();
     reposData.forEach(repo => {
