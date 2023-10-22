@@ -16,7 +16,10 @@ async function fetchGitHubData(githubId, token) {
 
         const data = await response.json();
         if (data.errors) {
-            throw new Error(JSON.stringify(data.errors, null, 2));
+            if (data.errors[0].type === 'NOT_FOUND')
+                return null;
+
+            throw new Error(data.errors[0].message);
         }
 
         return data.data;
@@ -29,6 +32,10 @@ async function fetchGitHubData(githubId, token) {
 
         while (hasNextPage) {
             const data = await fetchGraphQL(query, {...variables, cursor});
+
+            if (!data)
+                return null;
+
             const page = fieldPath.reduce((obj, key) => obj[key], data);
             items = items.concat(page.nodes);
             cursor = page.pageInfo.endCursor;
@@ -82,17 +89,13 @@ async function fetchGitHubData(githubId, token) {
 
     let contributionsData, reposData;
 
-    try {
-        [contributionsData, reposData] = await Promise.all([
+    [contributionsData, reposData] = await Promise.all([
             fetchGraphQL(contributionsQuery, {login: githubId}),
             fetchAllPages(reposQuery, ['user', 'repositoriesContributedTo'], {login: githubId})
         ]);
-    } catch (error) {
-        if (!String(error).includes('401') && !String(error).includes('403'))
-            localStorage.setItem(githubId, JSON.stringify({cached: null, timestamp: now}));
 
-        throw error;
-    }
+    if (!contributionsData || !reposData)
+        return localStorage.setItem(githubId, JSON.stringify({cached: null, timestamp: now}));
 
     const languages = new Set();
     reposData.forEach(repo => {
