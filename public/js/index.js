@@ -20,37 +20,16 @@ async function initiateAuthFlow() {
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${window.location.href}&scope=user`;
 }
 
-submitBtn.addEventListener('click', async () => {
-    // Disable the text area and submit button while fetching data
-    textArea.disabled = true;
-    submitBtn.disabled = true;
-
-    const textAreaValue = textArea.value;
-    const githubIds = textAreaValue.split('\n').map(id => id.trim()).filter(Boolean);
-
-    if (githubIds.length === 0) {
-        alert('Please enter at least one GitHub ID.');
-        textArea.disabled = false;
-        submitBtn.disabled = false;
-        return;
-    }
-
-    let token = localStorage.getItem('github_token');
-    if (!token) {
-        localStorage.setItem('github_ids', textArea.value);
-        return initiateAuthFlow();  // Exit early, will continue after user is authenticated
-    }
-
-    const commonLanguagesList = await commonLanguages;
-
+async function getRowData(githubIds, token, commonLanguagesList) {
     const dataRows = [];
+
     for (const githubId of githubIds) {
         try {
             const data = await fetchGitHubData(githubId, token).catch(error => {
                 if (String(error).includes('401') || String(error).includes('403')) {
                     if(localStorage.getItem('retry') === 'true') {
                         localStorage.removeItem('retry');
-                        break;
+                        return dataRows;
                     }
 
                     localStorage.removeItem('github_token');
@@ -76,6 +55,32 @@ submitBtn.addEventListener('click', async () => {
             dataRows.push([githubId, '', '', '', '', '']);
         }
     }
+
+    return dataRows;
+}
+
+submitBtn.addEventListener('click', async () => {
+    // Disable the text area and submit button while fetching data
+    textArea.disabled = true;
+    submitBtn.disabled = true;
+
+    const textAreaValue = textArea.value;
+    const githubIds = textAreaValue.split('\n').map(id => id.trim()).filter(Boolean);
+
+    if (githubIds.length === 0) {
+        alert('Please enter at least one GitHub ID.');
+        textArea.disabled = false;
+        submitBtn.disabled = false;
+        return;
+    }
+
+    let token = localStorage.getItem('github_token');
+    if (!token) {
+        localStorage.setItem('github_ids', textArea.value);
+        return initiateAuthFlow();  // Exit early, will continue after user is authenticated
+    }
+
+    const dataRows = await getRowData(githubIds, token, await commonLanguages);
 
     const csvContent = [headerRow, ...dataRows].map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], {type: 'text/csv'});
@@ -114,6 +119,8 @@ if (code) {
         .then(data => {
             const accessToken = data.access_token;
             localStorage.setItem('github_token', accessToken);  // Store the token for future use
+
+            history.replaceState({}, null, "/");
 
             const githubIds = localStorage.getItem('github_ids');
             if (githubIds) {
