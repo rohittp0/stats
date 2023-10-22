@@ -100,7 +100,7 @@ submitBtn.addEventListener('click', async () => {
 const code = new URLSearchParams(window.location.search).get('code')
 
 if (code) {
-    fetch(`https://github-auth.deno.dev/exchange?code=${code}`)
+    fetch(`/exchange?code=${code}`)
         .then(response => response.json())
         .then(data => {
             const accessToken = data.access_token;
