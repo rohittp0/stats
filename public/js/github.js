@@ -74,7 +74,7 @@ async function fetchGitHubData(githubId, token) {
 
     const {cached, timestamp} = JSON.parse(localStorage.getItem(githubId) || '{}');
 
-    if (cached && now - timestamp < 1000 * 60 * 60 * 24)
+    if (cached !== undefined && now - timestamp < 1000 * 60 * 60 * 24)
         return cached;
 
     try {
