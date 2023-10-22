@@ -50,7 +50,7 @@ submitBtn.addEventListener('click', async () => {
                 if (String(error).includes('401') || String(error).includes('403')) {
                     if(localStorage.getItem('retry') === 'true') {
                         localStorage.removeItem('retry');
-                        return window.location.href = "/";
+                        break;
                     }
 
                     localStorage.removeItem('github_token');
